@@ -2,22 +2,33 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "resource.default.name" . }} 
-  namespace: {{ include "resource.default.name" . }}
+  namespace: {{ include "resource.default.namespace" . }}
   labels:
-    app: {{ include "resource.default.name" . }}
+    {{- include "labels.common" . | nindent 4 }}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ include "resource.default.name" . }}
+      {{- include "labels.selector" . | nindent 6 }}
   strategy:
-    type: RollingUpdate
+    type: Recreate
   template:
     metadata:
       labels:
-        app: {{ include "resource.default.name" . }}
+        {{- include "labels.common" . | nindent 8 }}
+      annotations:
+        releaseRevision: {{ .Release.Revision | quote }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "labels.selector" . | nindent 18 }}
+              topologyKey: kubernetes.io/hostname
+            weight: 100
       serviceAccountName: {{ include "resource.default.name" . }}
       securityContext:
         runAsUser: {{ .Values.pod.user.id }}
