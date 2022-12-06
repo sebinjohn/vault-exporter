@@ -1,3 +1,5 @@
+# Dummy change
+
 # Vault Exporter
 
 Export [Hashicorp Vault](https://github.com/hashicorp/vault) health to [Prometheus](https://github.com/prometheus/prometheus).
